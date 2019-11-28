@@ -11,6 +11,19 @@ class CustomButton extends Component {
     };
   }
 
+  // _handleCustomClick = () => {
+  //   const { handleClick, value } = this.props
+  //   if(value === "start"){
+  //     return handleClick()
+  //   }else if(value === "move"){
+  //     return handleClick()
+  //   }else if(value === "fetch"){
+  //     return handleClick()
+  //   }else if(value === "remove"){
+  //     return handleClick()
+  //   }
+  // }
+
   render() {
     const { text,handleClick, value } = this.props
     return (
@@ -28,4 +41,5 @@ export default CustomButton;
 CustomButton.propTypes = {
   text: PropTypes.string.isRequired,
   handleClick: PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
 };

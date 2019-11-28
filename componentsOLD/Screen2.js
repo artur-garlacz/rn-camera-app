@@ -2,20 +2,19 @@ import React, { Component } from 'react';
 import * as Font from "expo-font";
 import * as Permissions from "expo-permissions";
 import * as MediaLibrary from "expo-media-library";
-import { View, Text, Button, StyleSheet, ToolbarAndroid, TextInput, KeyboardAvoidingView, Image, Alert, ActivityIndicator, AsyncStorage, FlatList, Switch, ToastAndroid, Dimensions } from 'react-native';
+import { View, Text, Button, StyleSheet, TextInput, KeyboardAvoidingView, Image, Alert, ActivityIndicator, AsyncStorage, FlatList, Switch, ToastAndroid, Dimensions } from 'react-native';
 import CustomButton from './CustomButton';
 import Items from './Items';
 
 class ListScreen extends Component {
 
-    // static navigationOptions = {
-    //     title: "Zdjęcia zapisane w telefonie",
-    //     headerStyle: {
-    //         backgroundColor: 'rgb(233,30,99)',
-    //     },
-    //     headerTintColor: '#fff',
-
-    // }
+    static navigationOptions = {
+        title: "Zdjęcia zapisane w telefonie",
+        headerStyle: {
+            backgroundColor: 'rgb(233,30,99)',
+        },
+        headerTintColor: '#fff',
+    }
 
     constructor(props) {
         super(props);
@@ -23,7 +22,6 @@ class ListScreen extends Component {
             isLoaded: false,
             list: [{ name: "w" }, { name: "E" }],
             photoList: [],
-            photoListToRemove: [],
             numColumns: 4
         };
     }
@@ -34,19 +32,6 @@ class ListScreen extends Component {
             alert('brak uprawnień do czytania image-ów z galerii')
         }
         this._getMediaData()
-    }
-
-    _handleChangeGridList = () => {
-        let { numColumns } = this.state;
-        if (numColumns === 4) {
-            numColumns = 1
-        } else {
-            numColumns = 4
-        }
-        this.setState({
-            ...this.state,
-            numColumns
-        })
     }
 
     _getMediaData = async () => {
@@ -62,48 +47,21 @@ class ListScreen extends Component {
         // alert(JSON.stringify(obj.assets, null, 4))
     }
 
-    _handleSelectImageToRemove = id => {
-        let { photoListToRemove } = this.state;
-        if (photoListToRemove.includes(id)) {
-            photoListToRemove = photoListToRemove.filter((item) => { return item !== id })
-        } else {
-            photoListToRemove.push(id)
-        }
-
-        console.log(photoListToRemove)
-
-        this.setState({
-            ...this.state,
-            photoListToRemove
-        }, () => console.log(photoListToRemove))
-    }
-
     _moveToCameraScreen = () => {
-        this.props.navigation.navigate("s3", { refresh: this._getMediaData });
-    }
-
-    _handleRemoveSelectedPhotos = async () => {
-        const { photoListToRemove } = this.state;
-        await MediaLibrary.deleteAssetsAsync(photoListToRemove);
-        this.setState({
-            ...this.state,
-            photoListToRemove: []
-        })
-        this._getMediaData()
+        this.props.navigation.navigate("s3")
     }
 
     _renderFlatList = () => {
         let { list, isLoaded, numColumns, photoList } = this.state;
         const { width } = Dimensions.get("window");
-        const itemWidth = (width) / numColumns;
+        const itemWidth = (width) / 4
         return (
             <FlatList
                 numColumns={numColumns}
-                key={numColumns}
                 data={photoList}
                 style={{ width: '100%' }}
                 renderItem={({ item }) => {
-                    return <Items uri={item.uri} width={item.width} height={item.height} id={item.id} itemWidth={itemWidth} handleSelectImageToRemove={this._handleSelectImageToRemove} getMediaData={this._getMediaData} />
+                    return <Items uri={item.uri} width={item.width} height={item.height} id={item.id} itemWidth={itemWidth} />
                 }}
                 keyExtractor={(item, index) => index.toString()}
                 extraData={this.state}
@@ -123,29 +81,15 @@ class ListScreen extends Component {
         let { isLoaded, markers, globalChecked } = this.state;
         return (
             <View style={styles.container}>
-                <ToolbarAndroid
-                    style={{
-                        backgroundColor: 'rgb(233,30,99)',
-                        height: 56, width: "100%",
-                        elevation: 5 // cień poniżej
-                    }}
-                    titleColor="#ffffff"
-                    logo={"W"}
-                    actions={[
-                        { title: 'title1', show: 'always' },
-                        { title: 'title2', show: 'never' },
-                    ]}
-                // onActionSelected={this.onActionSelected}
-                />
                 <View style={{ ...styles.topMenu, flex: .15 }}>
                     <View style={styles.title}>
-                        <CustomButton text="GRID / LIST" handleClick={this._handleChangeGridList} />
+                        <CustomButton text="GRID / LIST" handleClick={() => { console.log("W") }} value="fetch" />
                     </View>
                     <View style={styles.title}>
-                        <CustomButton text="OPEN CAMERA" handleClick={this._moveToCameraScreen} />
+                        <CustomButton text="OPEN CAMERA" handleClick={() => { this._moveToCameraScreen() }} value="remove" />
                     </View>
                     <View style={styles.title}>
-                        <CustomButton text="REMOVE SELECTED" handleClick={this._handleRemoveSelectedPhotos} />
+                        <CustomButton text="REMOVE SELECTED" handleClick={() => { this._handleMoveToMap() }} value="move" />
                     </View>
 
                 </View>
@@ -157,7 +101,8 @@ class ListScreen extends Component {
     }
 
     render() {
-        return this._renderScreen();
+        return (
+            <View style={styles.container}>{this._renderScreen()}</View>);
     }
 }
 

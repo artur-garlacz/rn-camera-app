@@ -7,27 +7,19 @@ class Items extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selected: false
     };
   }
 
   _handleMoveToBigPhotoScreen = () => {
-    const { uri, width, height, id, itemWidth, getMediaData } = this.props
-
+    const { uri, width, height, id, itemWidth } = this.props
     const data = { uri, width, height, id, itemWidth };
-    this.props.navigation.navigate("s4", { data, refresh: getMediaData })
+    this.props.navigation.navigate("s4", { uri, width, height, id, itemWidth })
   }
 
   render() {
-    const { uri, width, height, id, itemWidth, handleSelectImageToRemove } = this.props
-    let { selected } = this.state;
+    const { uri, width, height, id, itemWidth } = this.props
     return (
-      <TouchableOpacity onLongPress={this._handleMoveToBigPhotoScreen} onPress={() => {
-        this.setState({
-          selected: !selected
-        }, () => console.log(selected))
-        handleSelectImageToRemove(id)
-      }}>
+      <TouchableOpacity onPress={this._handleMoveToBigPhotoScreen}>
         <View style={{ ...styles.item, width: itemWidth, height: itemWidth }}>
           <Image
             style={{
@@ -39,11 +31,7 @@ class Items extends Component {
             resizeMode="stretch"
             source={{ uri }}
           />
-
-          <View style={{ position: 'absolute', bottom: 0, right: 50, color: "#ffffff" }}>
-            <Text>{id.charAt(id.length - 1)}</Text>
-            <Text>{selected ? "zaznaczono" : "nope"}</Text>
-          </View>
+          <Text>{id}</Text>
         </View>
       </TouchableOpacity>
     );
@@ -65,9 +53,9 @@ const styles = StyleSheet.create({
 
   },
   item: {
-    backgroundColor: '#ffffff',
+    backgroundColor: '#f9c2ff',
     // padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 8,
+    // marginVertical: 8,
+    // marginHorizontal: 16,
   },
 });

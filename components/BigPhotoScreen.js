@@ -2,11 +2,12 @@ import React, { Component } from 'react';
 import * as Font from "expo-font";
 import * as Permissions from "expo-permissions";
 import * as MediaLibrary from "expo-media-library";
-import { View, Text, Button, StyleSheet, TextInput, KeyboardAvoidingView, Image, Alert, ActivityIndicator, AsyncStorage, FlatList, Switch, ToastAndroid, Dimensions } from 'react-native';
-import CustomButton from './CustomButton';
-import Items from './Items';
+import { BackHandler ,View, Text, Button, StyleSheet, TextInput, KeyboardAvoidingView, Image, Alert, ActivityIndicator, AsyncStorage, FlatList, Switch, ToastAndroid, Dimensions } from 'react-native';
+import { Entypo } from '@expo/vector-icons';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
-class BigPhoto extends Component {
+
+class BigPhotoScreen extends Component {
 
     static navigationOptions = {
         title: "Wybrano zdjęcie",
@@ -24,7 +25,31 @@ class BigPhoto extends Component {
     }
 
     componentDidMount() {
+        BackHandler.addEventListener('hardwareBackPress', this.handleBackPress);
+    }
+    
+    componentWillUnmount() {
+        BackHandler.removeEventListener('hardwareBackPress', this.handleBackPress);
+    }
 
+    handleBackPress = () => {
+        this.props.navigation.state.params.refresh()
+        this.props.navigation.goBack()
+        return true;
+    }
+
+    _handleRemoveImage = async () => {
+        let { id } = this.props.navigation.state.params.data;
+        console.log(id)
+        await MediaLibrary.deleteAssetsAsync([id]);
+        ToastAndroid.showWithGravity(
+            'Usunięto zdjęcie',
+            ToastAndroid.SHORT,
+            ToastAndroid.CENTER
+        );
+        console.log(this.props.navigation.state.params)
+        this.props.navigation.state.params.refresh()
+        this.props.navigation.goBack();
     }
 
     _renderLoader = () => {
@@ -37,7 +62,7 @@ class BigPhoto extends Component {
 
     _renderScreen = () => {
         let { isLoaded, markers, globalChecked } = this.state;
-        const { uri, width, height, id, itemWidth } = this.props.navigation.state.params;
+        const { uri, width, height, id, itemWidth } = this.props.navigation.state.params.data;
         console.log(uri, width)
         return (
             <View style={styles.container}>
@@ -49,6 +74,12 @@ class BigPhoto extends Component {
                     resizeMode="cover"
                     source={{ uri }}
                 />
+                <View style={{position: 'absolute', bottom: 0, right: 50}}>
+                    <Text style={{color: "#ffffff"}}>{id}</Text>
+                    <TouchableOpacity onPress={this._handleRemoveImage}>
+                        <Entypo name="trash" size={128} color="white"  />
+                    </TouchableOpacity>
+                </View>
             </View>
         )
     }
@@ -58,7 +89,7 @@ class BigPhoto extends Component {
     }
 }
 
-export default BigPhoto;
+export default BigPhotoScreen;
 
 const styles = StyleSheet.create({
     container: {
